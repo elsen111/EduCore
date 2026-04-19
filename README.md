@@ -25,11 +25,6 @@ EduCore aims to digitize the full workflow of an academy by providing:
 * Reports and analytics
 * Public website pages
 
-This project is designed to be both:
-
-* A strong graduation project
-* A real-world SaaS business idea
-
 ---
 
 ## 🎯 Main Goals
