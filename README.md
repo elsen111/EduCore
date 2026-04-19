@@ -373,11 +373,7 @@ The academy owner who uses the platform.
 
 ---
 
-## 🏗️ Recommended MVP
-
-The first version should focus only on the core features.
-
-### Must-Have Features
+### Current Features
 
 * Authentication
 * Role system
@@ -391,7 +387,7 @@ The first version should focus only on the core features.
 * Dashboard statistics
 * File upload for materials
 
-### Nice-to-Have Features
+### Additional Features (In the future)
 
 * Parent panel
 * Homework submission
