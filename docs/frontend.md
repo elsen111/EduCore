@@ -2,13 +2,13 @@
 
 ## Overview
 
-The frontend of **EduCore** is a modern web application built with **React** and **TypeScript**.
+The frontend of **Nestora** is a modern web application built with **React** and **TypeScript**.
 
 Its responsibilities are:
 
-* rendering public and dashboard interfaces
+* rendering public marketplace and dashboard interfaces
 * managing navigation and protected routes
-* handling forms and client-side validation
+* handling search, filters, and client-side validation
 * connecting to backend APIs
 * displaying role-based content
 * supporting responsive design
@@ -28,6 +28,7 @@ Its responsibilities are:
 * **Zod**
 * **i18n**
 * **Recharts** or **Chart.js**
+* **React Leaflet** or **Google Maps**
 * **Lucide React**
 
 ---
@@ -38,10 +39,10 @@ The frontend is responsible for:
 
 * public marketing pages
 * authentication pages
-* academy dashboard
-* student, teacher, course, and group management pages
-* schedule and attendance pages
-* payment, assignment, exam, and materials pages
+* property search and listing pages
+* property details and gallery pages
+* favorites, recommendations, and dashboard pages
+* messaging, viewing, and payment pages
 * role-based UI rendering
 * API request and response handling
 * token storage and route protection
@@ -75,40 +76,39 @@ Purpose:
 
 * introduce the platform
 * explain benefits
-* display featured courses
+* display featured properties
 * provide call-to-action buttons
 
 ### About Page
 
 Purpose:
 
-* show academy or platform information
+* show company or platform information
 * mission and vision
 * short team or business intro
 
-### Courses Page
+### Properties Page
 
 Purpose:
 
-* display all available courses
-* search and filter courses
+* display all available properties
+* search, filter, sort, and explore on map
 
-### Course Details Page
-
-Purpose:
-
-* show single course details
-* syllabus
-* duration
-* price
-* teacher
-* enroll information
-
-### Teachers Page
+### Property Details Page
 
 Purpose:
 
-* show teacher cards and profiles
+* show single property details
+* image gallery
+* price and location
+* amenities
+* contact and viewing information
+
+### Agents Page
+
+Purpose:
+
+* show agent cards and profiles
 
 ### Contact Page
 
@@ -131,7 +131,7 @@ Purpose:
 
 Purpose:
 
-* academy owner registration
+* buyer, renter, owner, or agency registration
 
 ---
 
@@ -146,100 +146,86 @@ Purpose:
 * charts
 * quick actions
 
-### Students Page
+### Listings Page
 
 Purpose:
 
-* list all students
+* list owned or managed properties
 * search, filter, paginate
-* add, edit, delete
+* add, edit, archive
 
-### Student Details Page
-
-Purpose:
-
-* student profile
-* attendance history
-* payment history
-* enrolled groups
-
-### Teachers Page
+### Listing Details Page
 
 Purpose:
 
-* list teachers
-* teacher CRUD operations
+* listing profile
+* inquiry history
+* viewing history
+* promotion and performance data
 
-### Teacher Details Page
-
-Purpose:
-
-* show teacher information
-* assigned groups
-* working schedule
-
-### Courses Page
+### Listing Create / Edit Page
 
 Purpose:
 
-* manage courses
+* create new property listing
+* update existing property listing
 
-### Course Create / Edit Page
-
-Purpose:
-
-* create new course
-* update existing course
-
-### Groups Page
+### Favorites Page
 
 Purpose:
 
-* manage class groups
-* assign teacher and students
+* show saved properties
+* compare and manage favorites
 
-### Schedule Page
-
-Purpose:
-
-* weekly and daily schedule management
-
-### Attendance Page
+### Saved Searches Page
 
 Purpose:
 
-* mark attendance
-* filter by group and date
+* manage saved filters
+* enable price and availability alerts
+
+### Messages Page
+
+Purpose:
+
+* manage buyer, renter, agent, and owner conversations
+
+### Viewings Page
+
+Purpose:
+
+* manage property viewing requests
+* confirm, reschedule, or cancel appointments
+
+### Offers Page
+
+Purpose:
+
+* create and review offers
+* track negotiation statuses
 
 ### Payments Page
 
 Purpose:
 
-* fee tracking
-* payment history
-* debt overview
+* listing fee tracking
+* commission history
+* billing overview
 
-### Assignments Page
-
-Purpose:
-
-* create and manage homework
-* view submissions
-
-### Exams Page
+### Promotions Page
 
 Purpose:
 
-* create exams
-* enter and review grades
+* create featured listings
+* manage ad placements
+* track campaign dates
 
-### Materials Page
+### Recommendations Page
 
 Purpose:
 
-* upload documents
-* manage learning materials
-* add video links
+* show AI-based property recommendations
+* explain match reasons when available
 
 ### Notifications Page
 
@@ -258,7 +244,7 @@ Purpose:
 
 Purpose:
 
-* academy profile settings
+* agency or profile settings
 * branding
 * password changes
 * general preferences
@@ -298,16 +284,16 @@ Purpose:
 
 ## Feature Components
 
-* `StudentForm`
-* `TeacherForm`
-* `CourseForm`
-* `GroupForm`
-* `ScheduleCalendar`
-* `AttendanceTable`
-* `PaymentTable`
-* `AssignmentForm`
-* `ExamForm`
-* `MaterialUploadForm`
+* `PropertySearchForm`
+* `PropertyFilterPanel`
+* `PropertyForm`
+* `PropertyGalleryUploader`
+* `PropertyMap`
+* `FavoriteToggle`
+* `SavedSearchForm`
+* `ViewingCalendar`
+* `MessageThread`
+* `PromotionForm`
 * `DashboardStatsCards`
 
 ---
@@ -324,7 +310,7 @@ Recommended approach:
 
 * `AuthContext`
 * `UserContext`
-* `LanguageContext`
+* `SearchContext`
 * `ThemeContext`
 * `NotificationContext`
 
@@ -338,27 +324,25 @@ Example route structure:
 /
 ├── /
 ├── /about
-├── /courses
-├── /courses/:id
-├── /teachers
+├── /properties
+├── /properties/:id
+├── /agents
 ├── /contact
 ├── /login
 ├── /register
 ├── /dashboard
-│   ├── /dashboard/students
-│   ├── /dashboard/students/:id
-│   ├── /dashboard/teachers
-│   ├── /dashboard/teachers/:id
-│   ├── /dashboard/courses
-│   ├── /dashboard/courses/create
-│   ├── /dashboard/courses/:id/edit
-│   ├── /dashboard/groups
-│   ├── /dashboard/schedule
-│   ├── /dashboard/attendance
+│   ├── /dashboard/listings
+│   ├── /dashboard/listings/create
+│   ├── /dashboard/listings/:id
+│   ├── /dashboard/listings/:id/edit
+│   ├── /dashboard/favorites
+│   ├── /dashboard/saved-searches
+│   ├── /dashboard/messages
+│   ├── /dashboard/viewings
+│   ├── /dashboard/offers
 │   ├── /dashboard/payments
-│   ├── /dashboard/assignments
-│   ├── /dashboard/exams
-│   ├── /dashboard/materials
+│   ├── /dashboard/promotions
+│   ├── /dashboard/recommendations
 │   ├── /dashboard/notifications
 │   ├── /dashboard/reports
 │   └── /dashboard/settings
@@ -377,13 +361,12 @@ Used for:
 
 * login form
 * register form
-* student create/edit form
-* teacher create/edit form
-* course create/edit form
-* group create/edit form
-* payment form
-* assignment form
-* exam form
+* property create/edit form
+* saved search create/edit form
+* viewing booking form
+* offer submission form
+* payment checkout form
+* settings form
 
 ---
 
@@ -397,9 +380,9 @@ Client-side validation should cover:
 * min/max lengths
 * valid numbers
 * valid dates
-* file type validation
-* file size validation
-* simple schedule conflict prevention before submission if needed
+* image type validation
+* image size validation
+* price range and map coordinate validation before submission if needed
 
 ---
 
@@ -410,17 +393,18 @@ All API calls should be separated into service files.
 ### Suggested services
 
 * `authService.ts`
-* `academyService.ts`
-* `studentService.ts`
-* `teacherService.ts`
-* `courseService.ts`
-* `groupService.ts`
-* `scheduleService.ts`
-* `attendanceService.ts`
+* `agencyService.ts`
+* `propertyService.ts`
+* `searchService.ts`
+* `agentService.ts`
+* `favoriteService.ts`
+* `savedSearchService.ts`
+* `viewingService.ts`
+* `offerService.ts`
+* `messageService.ts`
 * `paymentService.ts`
-* `assignmentService.ts`
-* `examService.ts`
-* `materialService.ts`
+* `promotionService.ts`
+* `recommendationService.ts`
 * `notificationService.ts`
 * `dashboardService.ts`
 * `reportService.ts`
@@ -454,18 +438,19 @@ The frontend must show and hide pages depending on the current user role.
 ### Example roles
 
 * `SUPER_ADMIN`
-* `ACADEMY_MANAGER`
-* `TEACHER`
-* `STUDENT`
-* `PARENT`
-* `STAFF`
+* `AGENCY_ADMIN`
+* `AGENT`
+* `PROPERTY_OWNER`
+* `BUYER`
+* `RENTER`
 
 ### Example access behavior
 
-* Academy manager can manage students, teachers, courses, groups, payments
-* Teacher can access assigned groups, attendance, assignments, grades
-* Student can access own courses, assignments, grades, payments
-* Parent can access child attendance, grades, and payment status
+* Agency admin can manage agents, listings, promotions, payments
+* Agent can manage assigned listings, inquiries, viewings, and offers
+* Property owner can manage own listings and purchase featured placement
+* Buyer can browse properties, save favorites, message agents, and place offers
+* Renter can browse rentals, save searches, and schedule viewings
 
 ### Example protected route
 
@@ -516,4 +501,3 @@ frontend/
 ```
 
 ---
-

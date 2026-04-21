@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section defines the REST API structure for **EduCore**.
+This section defines the REST API structure for **Nestora**.
 
 Each endpoint should clearly define:
 
@@ -92,7 +92,7 @@ public class ErrorResponseDto {
 
 ## POST `/api/auth/register`
 
-Register a new academy manager.
+Register a new agency admin account.
 
 ### Authorization
 
@@ -102,7 +102,7 @@ Register a new academy manager.
 
 ```java
 public class RegisterRequestDto {
-    private String academyName;
+    private String agencyName;
     private String firstName;
     private String lastName;
     private String email;
@@ -115,12 +115,12 @@ public class RegisterRequestDto {
 
 ```json
 {
-  "academyName": "EduCore Academy",
-  "firstName": "Elshan",
-  "lastName": "Hasanov",
-  "email": "owner@educore.com",
+  "agencyName": "Skyline Realty",
+  "firstName": "Emma",
+  "lastName": "Johnson",
+  "email": "owner@skylinerealty.com",
   "password": "StrongPassword123",
-  "phone": "+994501234567"
+  "phone": "+12025550123"
 }
 ```
 
@@ -134,8 +134,8 @@ public class RegisterRequestDto {
   "message": "Account registered successfully",
   "data": {
     "userId": 1,
-    "academyId": 1,
-    "email": "owner@educore.com"
+    "agencyId": 1,
+    "email": "owner@skylinerealty.com"
   }
 }
 ```
@@ -172,7 +172,7 @@ public class LoginRequestDto {
 
 ```json
 {
-  "email": "owner@educore.com",
+  "email": "owner@skylinerealty.com",
   "password": "StrongPassword123"
 }
 ```
@@ -202,7 +202,7 @@ public class LoginResponseDto {
     "refreshToken": "jwt-refresh-token",
     "tokenType": "Bearer",
     "userId": 1,
-    "role": "ACADEMY_MANAGER"
+    "role": "AGENCY_ADMIN"
   }
 }
 ```
@@ -267,15 +267,15 @@ Logout current user.
 
 ---
 
-## 2. Academy API
+## 2. Agency API
 
-## GET `/api/academies/me`
+## GET `/api/agencies/me`
 
-Get current academy data.
+Get current agency data.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Response
 
@@ -284,61 +284,63 @@ Get current academy data.
   "success": true,
   "data": {
     "id": 1,
-    "name": "EduCore Academy",
+    "name": "Skyline Realty",
     "logoUrl": "/uploads/logo.png",
-    "email": "info@educore.com",
-    "phone": "+994501234567",
-    "address": "Baku, Azerbaijan"
+    "email": "info@skylinerealty.com",
+    "phone": "+12025550123",
+    "address": "Austin, Texas"
   }
 }
 ```
 
 ---
 
-## PUT `/api/academies/me`
+## PUT `/api/agencies/me`
 
-Update academy profile.
+Update agency profile.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Request Body
 
 ```json
 {
-  "name": "EduCore Academy",
-  "description": "Modern academy management solution",
-  "email": "info@educore.com",
-  "phone": "+994501234567",
-  "address": "Baku, Azerbaijan",
-  "website": "https://educore.com"
+  "name": "Skyline Realty",
+  "description": "Modern marketplace for buying, selling, and renting homes",
+  "email": "info@skylinerealty.com",
+  "phone": "+12025550123",
+  "address": "Austin, Texas",
+  "website": "https://skylinerealty.com"
 }
 ```
 
 ---
 
-## 3. Student API
+## 3. Property API
 
-## POST `/api/students`
+## POST `/api/properties`
 
-Create student.
+Create property listing.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
 
 ### Request DTO
 
 ```java
-public class StudentCreateRequestDto {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private LocalDate birthDate;
-    private String parentName;
-    private String parentPhone;
+public class PropertyCreateRequestDto {
+    private String title;
+    private String description;
+    private String type;
+    private String listingType;
+    private BigDecimal price;
+    private String city;
+    private String address;
+    private Integer bedrooms;
+    private Integer bathrooms;
 }
 ```
 
@@ -346,13 +348,15 @@ public class StudentCreateRequestDto {
 
 ```json
 {
-  "firstName": "Ali",
-  "lastName": "Mammadov",
-  "email": "ali@example.com",
-  "phone": "+994501111111",
-  "birthDate": "2010-05-10",
-  "parentName": "Rashad Mammadov",
-  "parentPhone": "+994502222222"
+  "title": "Modern Downtown Condo",
+  "description": "2 bedroom condo with skyline view",
+  "type": "CONDO",
+  "listingType": "SALE",
+  "price": 425000,
+  "city": "Austin",
+  "address": "101 Main St, Austin, TX",
+  "bedrooms": 2,
+  "bathrooms": 2
 }
 ```
 
@@ -361,39 +365,42 @@ public class StudentCreateRequestDto {
 ```json
 {
   "success": true,
-  "message": "Student created successfully",
+  "message": "Property created successfully",
   "data": {
     "id": 5,
-    "firstName": "Ali",
-    "lastName": "Mammadov",
-    "email": "ali@example.com",
-    "status": "ACTIVE"
+    "title": "Modern Downtown Condo",
+    "listingType": "SALE",
+    "price": 425000,
+    "status": "DRAFT"
   }
 }
 ```
 
 ---
 
-## GET `/api/students`
+## GET `/api/properties`
 
-Get paginated students list.
+Get paginated properties list.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* Authenticated or public depending on setup
 
 ### Query Params
 
 * `page`
 * `size`
 * `search`
+* `listingType`
+* `city`
 * `status`
-* `groupId`
+* `minPrice`
+* `maxPrice`
 
 ### Example
 
 ```http
-GET /api/students?page=0&size=10&search=Ali
+GET /api/properties?page=0&size=10&city=Austin&listingType=SALE&maxPrice=500000
 ```
 
 ### Response
@@ -405,10 +412,10 @@ GET /api/students?page=0&size=10&search=Ali
     "content": [
       {
         "id": 5,
-        "firstName": "Ali",
-        "lastName": "Mammadov",
-        "email": "ali@example.com",
-        "phone": "+994501111111",
+        "title": "Modern Downtown Condo",
+        "city": "Austin",
+        "price": 425000,
+        "listingType": "SALE",
         "status": "ACTIVE"
       }
     ],
@@ -422,13 +429,13 @@ GET /api/students?page=0&size=10&search=Ali
 
 ---
 
-## GET `/api/students/{id}`
+## GET `/api/properties/{id}`
 
-Get student details.
+Get property details.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`, `TEACHER`, `PARENT`, `STUDENT`
+* Authenticated or public depending on setup
 
 ### Path Params
 
@@ -441,13 +448,13 @@ Get student details.
   "success": true,
   "data": {
     "id": 5,
-    "firstName": "Ali",
-    "lastName": "Mammadov",
-    "email": "ali@example.com",
-    "phone": "+994501111111",
-    "birthDate": "2010-05-10",
-    "parentName": "Rashad Mammadov",
-    "parentPhone": "+994502222222",
+    "title": "Modern Downtown Condo",
+    "description": "2 bedroom condo with skyline view",
+    "city": "Austin",
+    "address": "101 Main St, Austin, TX",
+    "price": 425000,
+    "bedrooms": 2,
+    "bathrooms": 2,
     "status": "ACTIVE"
   }
 }
@@ -455,13 +462,13 @@ Get student details.
 
 ---
 
-## PUT `/api/students/{id}`
+## PUT `/api/properties/{id}`
 
-Update student.
+Update property listing.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
 
 ### Path Params
 
@@ -471,22 +478,21 @@ Update student.
 
 ```json
 {
-  "firstName": "Ali",
-  "lastName": "Mammadov",
-  "phone": "+994503333333",
-  "parentPhone": "+994504444444"
+  "title": "Modern Downtown Condo",
+  "price": 415000,
+  "status": "ACTIVE"
 }
 ```
 
 ---
 
-## DELETE `/api/students/{id}`
+## DELETE `/api/properties/{id}`
 
-Delete or deactivate student.
+Archive property listing.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
 
 ### Path Params
 
@@ -497,32 +503,32 @@ Delete or deactivate student.
 ```json
 {
   "success": true,
-  "message": "Student deleted successfully"
+  "message": "Property archived successfully"
 }
 ```
 
 ---
 
-## 4. Teacher API
+## 4. Agent API
 
-## POST `/api/teachers`
+## POST `/api/agents`
 
-Create teacher.
+Create agent.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Request Body
 
 ```json
 {
-  "firstName": "Leyla",
-  "lastName": "Aliyeva",
-  "email": "leyla@educore.com",
-  "phone": "+994505555555",
-  "specialization": "Java",
-  "salary": 1200
+  "firstName": "Liam",
+  "lastName": "Carter",
+  "email": "liam@skylinerealty.com",
+  "phone": "+12025550124",
+  "specialization": "Luxury Homes",
+  "licenseNumber": "TX-784421"
 }
 ```
 
@@ -531,24 +537,24 @@ Create teacher.
 ```json
 {
   "success": true,
-  "message": "Teacher created successfully",
+  "message": "Agent created successfully",
   "data": {
     "id": 3,
-    "firstName": "Leyla",
-    "lastName": "Aliyeva"
+    "firstName": "Liam",
+    "lastName": "Carter"
   }
 }
 ```
 
 ---
 
-## GET `/api/teachers`
+## GET `/api/agents`
 
-List teachers.
+List agents.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
 
 ### Query Params
 
@@ -559,56 +565,58 @@ List teachers.
 
 ---
 
-## GET `/api/teachers/{id}`
+## GET `/api/agents/{id}`
 
-Get teacher details.
+Get agent details.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`, `TEACHER`
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`, `AGENT`
 
 ---
 
-## PUT `/api/teachers/{id}`
+## PUT `/api/agents/{id}`
 
-Update teacher.
+Update agent.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ---
 
-## DELETE `/api/teachers/{id}`
+## DELETE `/api/agents/{id}`
 
-Delete or deactivate teacher.
+Delete or deactivate agent.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ---
 
-## 5. Course API
+## 5. Saved Search API
 
-## POST `/api/courses`
+## POST `/api/saved-searches`
 
-Create course.
+Create saved search.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `BUYER`, `RENTER`
 
 ### Request Body
 
 ```json
 {
-  "title": "Java Beginner",
-  "description": "Introduction to Java",
-  "category": "Programming",
-  "level": "BEGINNER",
-  "durationInWeeks": 12,
-  "price": 300
+  "name": "Austin Condos Under 500k",
+  "city": "Austin",
+  "listingType": "SALE",
+  "minPrice": 250000,
+  "maxPrice": 500000,
+  "bedrooms": 2,
+  "propertyType": "CONDO",
+  "isAlertEnabled": true
 }
 ```
 
@@ -617,219 +625,186 @@ Create course.
 ```json
 {
   "success": true,
-  "message": "Course created successfully",
+  "message": "Saved search created successfully",
   "data": {
-    "id": 1,
-    "title": "Java Beginner",
-    "level": "BEGINNER",
-    "price": 300
+    "id": 8,
+    "name": "Austin Condos Under 500k",
+    "isAlertEnabled": true
   }
 }
 ```
 
 ---
 
-## GET `/api/courses`
+## GET `/api/saved-searches`
 
-Get courses list.
+Get saved searches list.
 
 ### Authorization
 
-* Authenticated or public depending on setup
+* `BUYER`, `RENTER`
 
 ### Query Params
 
 * `page`
 * `size`
-* `search`
-* `level`
-* `category`
+* `isAlertEnabled`
 
 ---
 
-## GET `/api/courses/{id}`
+## GET `/api/saved-searches/{id}`
 
-Get course details.
+Get saved search details.
 
 ### Authorization
 
-* Authenticated or public depending on setup
+* `BUYER`, `RENTER`
 
 ---
 
-## PUT `/api/courses/{id}`
+## PUT `/api/saved-searches/{id}`
 
-Update course.
+Update saved search.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `BUYER`, `RENTER`
 
 ---
 
-## DELETE `/api/courses/{id}`
+## DELETE `/api/saved-searches/{id}`
 
-Delete course.
+Delete saved search.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `BUYER`, `RENTER`
 
 ---
 
-## 6. Group API
+## 6. Favorites API
 
-## POST `/api/groups`
+## POST `/api/favorites/{propertyId}`
 
-Create group.
-
-### Authorization
-
-* `ACADEMY_MANAGER`
-
-### Request Body
-
-```json
-{
-  "name": "Java Beginner - Group A",
-  "courseId": 1,
-  "teacherId": 3,
-  "capacity": 20,
-  "startDate": "2026-05-01",
-  "endDate": "2026-07-31",
-  "classroom": "Room 201",
-  "meetingLink": null
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "message": "Group created successfully",
-  "data": {
-    "id": 1,
-    "name": "Java Beginner - Group A",
-    "courseId": 1,
-    "teacherId": 3
-  }
-}
-```
-
----
-
-## POST `/api/groups/{id}/students/{studentId}`
-
-Assign student to group.
+Save property to favorites.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* `BUYER`, `RENTER`
 
 ### Path Params
 
-* `id`
-* `studentId`
+* `propertyId`
 
 ### Response
 
 ```json
 {
   "success": true,
-  "message": "Student assigned to group successfully"
+  "message": "Property added to favorites"
 }
 ```
 
 ---
 
-## GET `/api/groups`
+## DELETE `/api/favorites/{propertyId}`
 
-List groups.
+Remove property from favorites.
+
+### Authorization
+
+* `BUYER`, `RENTER`
+
+### Path Params
+
+* `propertyId`
+
+---
+
+## GET `/api/favorites`
+
+List favorite properties.
 
 ### Query Params
 
 * `page`
 * `size`
-* `courseId`
-* `teacherId`
-* `status`
+* `listingType`
+* `city`
 
 ---
 
-## 7. Schedule API
+## 7. Viewing API
 
-## POST `/api/schedules`
+## POST `/api/viewings`
 
-Create schedule entry.
+Create viewing request.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `BUYER`, `RENTER`, `AGENT`, `PROPERTY_OWNER`
 
 ### Request Body
 
 ```json
 {
-  "groupId": 1,
-  "teacherId": 3,
-  "weekday": "MONDAY",
-  "startTime": "10:00",
-  "endTime": "12:00",
-  "room": "Room 201",
-  "meetingLink": null
+  "propertyId": 5,
+  "scheduledAt": "2026-05-03T14:00:00",
+  "note": "Interested in a weekend visit",
+  "contactPhone": "+12025550190"
 }
 ```
 
 ### Business Rules
 
-* teacher cannot be double-booked
-* room cannot be double-booked
 * time must be valid
-* group must belong to current academy
+* archived property cannot receive viewings
+* property must belong to current agency for management actions
+* agent or owner cannot accept overlapping confirmed viewings
 
 ### Response
 
 ```json
 {
   "success": true,
-  "message": "Schedule created successfully"
+  "message": "Viewing requested successfully"
 }
 ```
 
 ---
 
-## GET `/api/schedules`
+## GET `/api/viewings`
 
-Get schedules.
+Get viewings.
 
 ### Query Params
 
-* `groupId`
-* `teacherId`
-* `weekday`
+* `propertyId`
+* `userId`
+* `status`
+* `from`
+* `to`
 
 ---
 
-## 8. Attendance API
+## 8. Inquiry API
 
-## POST `/api/attendance`
+## POST `/api/inquiries`
 
-Mark attendance.
+Create inquiry.
 
 ### Authorization
 
-* `TEACHER`, `ACADEMY_MANAGER`
+* `BUYER`, `RENTER`
 
 ### Request DTO
 
 ```java
-public class AttendanceMarkRequestDto {
-    private Long studentId;
-    private Long groupId;
-    private LocalDate date;
-    private String status;
-    private String note;
+public class InquiryCreateRequestDto {
+    private Long propertyId;
+    private Long recipientId;
+    private String message;
+    private String contactPhone;
 }
 ```
 
@@ -837,11 +812,10 @@ public class AttendanceMarkRequestDto {
 
 ```json
 {
-  "studentId": 5,
-  "groupId": 1,
-  "date": "2026-05-03",
-  "status": "PRESENT",
-  "note": "On time"
+  "propertyId": 5,
+  "recipientId": 3,
+  "message": "Is this condo still available and can HOA fees be shared?",
+  "contactPhone": "+12025550190"
 }
 ```
 
@@ -850,25 +824,25 @@ public class AttendanceMarkRequestDto {
 ```json
 {
   "success": true,
-  "message": "Attendance marked successfully"
+  "message": "Inquiry sent successfully"
 }
 ```
 
 ---
 
-## GET `/api/attendance/student/{studentId}`
+## GET `/api/inquiries/property/{propertyId}`
 
-Get attendance history.
+Get property inquiries.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `TEACHER`, `PARENT`, `STUDENT`
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
 
 ### Query Params
 
 * `from`
 * `to`
-* `groupId`
+* `status`
 
 ---
 
@@ -880,19 +854,19 @@ Create payment record.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `STAFF`
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
 
 ### Request Body
 
 ```json
 {
-  "studentId": 5,
-  "amount": 300,
-  "paidAmount": 150,
-  "dueDate": "2026-05-10",
-  "paymentMethod": "CASH",
-  "status": "PARTIAL",
-  "note": "First installment"
+  "propertyId": 5,
+  "purpose": "FEATURED_LISTING",
+  "amount": 199,
+  "provider": "STRIPE",
+  "paymentMethod": "CARD",
+  "status": "PAID",
+  "note": "Featured listing for 14 days"
 }
 ```
 
@@ -913,7 +887,8 @@ Get payments list.
 
 ### Query Params
 
-* `studentId`
+* `userId`
+* `purpose`
 * `status`
 * `from`
 * `to`
@@ -922,43 +897,41 @@ Get payments list.
 
 ---
 
-## GET `/api/payments/student/{studentId}`
+## GET `/api/payments/me`
 
-Get student payment history.
+Get current user payment history.
 
 ---
 
-## 10. Assignment API
+## 10. Messaging API
 
-## POST `/api/assignments`
+## POST `/api/messages/conversations`
 
-Create assignment.
+Create conversation.
 
 ### Authorization
 
-* `TEACHER`
+* `BUYER`, `RENTER`, `AGENT`, `PROPERTY_OWNER`
 
 ### Request Body
 
 ```json
 {
-  "groupId": 1,
-  "title": "Java Variables Homework",
-  "description": "Complete exercises 1 to 10",
-  "deadline": "2026-05-20T23:59:00",
-  "attachmentUrl": "/uploads/assignment1.pdf"
+  "propertyId": 5,
+  "recipientId": 3,
+  "initialMessage": "Hi, I would like to discuss this property."
 }
 ```
 
 ---
 
-## POST `/api/assignments/{id}/submit`
+## POST `/api/messages/conversations/{id}/send`
 
-Submit assignment.
+Send message.
 
 ### Authorization
 
-* `STUDENT`
+* `BUYER`, `RENTER`, `AGENT`, `PROPERTY_OWNER`
 
 ### Content-Type
 
@@ -970,71 +943,63 @@ Submit assignment.
 
 ### Form Data
 
-* `file`
+* `text`
+* `attachment`
 
 ### Response
 
 ```json
 {
   "success": true,
-  "message": "Assignment submitted successfully"
+  "message": "Message sent successfully"
 }
 ```
 
 ---
 
-## GET `/api/assignments/group/{groupId}`
+## GET `/api/messages/conversations/{id}`
 
-List assignments for group.
+List messages for conversation.
 
 ---
 
-## 11. Exam API
+## 11. Offer API
 
-## POST `/api/exams`
+## POST `/api/offers`
 
-Create exam.
+Create offer.
 
 ### Authorization
 
-* `TEACHER`, `ACADEMY_MANAGER`
+* `BUYER`
 
 ### Request Body
 
 ```json
 {
-  "groupId": 1,
-  "title": "Java Midterm",
-  "description": "Midterm exam",
-  "examDate": "2026-06-15",
-  "totalScore": 100
+  "propertyId": 5,
+  "amount": 410000,
+  "financingType": "MORTGAGE",
+  "message": "Offer contingent on inspection"
 }
 ```
 
 ---
 
-## POST `/api/exams/{id}/grades`
+## PUT `/api/offers/{id}/status`
 
-Enter grades.
+Update offer status.
 
 ### Authorization
 
-* `TEACHER`
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
 
 ### Request Body
 
 ```json
 {
-  "grades": [
-    {
-      "studentId": 5,
-      "score": 90
-    },
-    {
-      "studentId": 6,
-      "score": 75
-    }
-  ]
+  "status": "COUNTERED",
+  "counterAmount": 420000
 }
 ```
 
@@ -1043,43 +1008,49 @@ Enter grades.
 ```json
 {
   "success": true,
-  "message": "Grades saved successfully"
+  "message": "Offer status updated successfully"
 }
 ```
 
 ---
 
-## 12. Materials API
+## GET `/api/offers/property/{propertyId}`
 
-## POST `/api/materials`
+List offers for property.
 
-Create link-based material.
+---
+
+## 12. Promotion API
+
+## POST `/api/promotions`
+
+Create promotion.
 
 ### Authorization
 
-* `TEACHER`, `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
 
 ### Request Body
 
 ```json
 {
-  "courseId": 1,
-  "title": "Lesson 1 Video",
-  "type": "VIDEO_LINK",
-  "videoUrl": "https://youtube.com/example",
-  "description": "Introduction lesson"
+  "propertyId": 5,
+  "planType": "FEATURED_14_DAYS",
+  "startDate": "2026-05-01",
+  "endDate": "2026-05-14",
+  "budget": 199
 }
 ```
 
 ---
 
-## POST `/api/materials/upload`
+## POST `/api/promotions/upload-banner`
 
-Upload file material.
+Upload banner asset.
 
 ### Authorization
 
-* `TEACHER`, `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Content-Type
 
@@ -1087,17 +1058,15 @@ Upload file material.
 
 ### Form Data
 
-* `courseId`
-* `title`
-* `type`
-* `file`
-* `description`
+* `promotionId`
+* `image`
+* `targetUrl`
 
 ---
 
-## GET `/api/materials/course/{courseId}`
+## GET `/api/promotions/property/{propertyId}`
 
-List materials by course.
+List promotions by property.
 
 ---
 
@@ -1119,8 +1088,8 @@ Get current user notifications.
   "data": [
     {
       "id": 1,
-      "title": "Payment Reminder",
-      "message": "Your payment is due tomorrow",
+      "title": "Viewing Reminder",
+      "message": "Your viewing is scheduled for tomorrow at 2:00 PM",
       "isRead": false,
       "createdAt": "2026-05-01T11:00:00"
     }
@@ -1142,13 +1111,13 @@ Mark notification as read.
 
 ## 14. Dashboard API
 
-## GET `/api/dashboard/manager`
+## GET `/api/dashboard/agency`
 
-Get manager dashboard statistics.
+Get agency dashboard statistics.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Response
 
@@ -1156,52 +1125,53 @@ Get manager dashboard statistics.
 {
   "success": true,
   "data": {
-    "totalStudents": 120,
-    "totalTeachers": 12,
-    "activeCourses": 15,
-    "monthlyRevenue": 5400,
-    "unpaidStudents": 7,
-    "todayClasses": 9
+    "totalListings": 120,
+    "activeAgents": 12,
+    "featuredListings": 15,
+    "monthlyRevenue": 8400,
+    "openInquiries": 27,
+    "scheduledViewings": 18
   }
 }
 ```
 
 ---
 
-## GET `/api/dashboard/teacher`
+## GET `/api/dashboard/agent`
 
-Get teacher dashboard data.
+Get agent dashboard data.
 
 ### Authorization
 
-* `TEACHER`
+* `AGENT`
 
 ---
 
-## GET `/api/dashboard/student`
+## GET `/api/dashboard/client`
 
-Get student dashboard data.
+Get buyer or renter dashboard data.
 
 ### Authorization
 
-* `STUDENT`
+* `BUYER`, `RENTER`
 
 ---
 
 ## 15. Reports API
 
-## GET `/api/reports/attendance`
+## GET `/api/reports/listings`
 
-Get attendance report.
+Get listing performance report.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Query Params
 
-* `groupId`
-* `studentId`
+* `status`
+* `city`
+* `listingType`
 * `from`
 * `to`
 
@@ -1213,23 +1183,24 @@ Get payments report.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`
+* `AGENCY_ADMIN`
 
 ### Query Params
 
 * `status`
+* `purpose`
 * `from`
 * `to`
 
 ---
 
-## GET `/api/reports/performance`
+## GET `/api/reports/conversions`
 
-Get student performance report.
+Get inquiry and offer conversion report.
 
 ### Authorization
 
-* `ACADEMY_MANAGER`, `TEACHER`
+* `AGENCY_ADMIN`, `AGENT`
 
 ---
 
@@ -1238,29 +1209,26 @@ Get student performance report.
 ### Phase 1
 
 * auth
-* academy
-* students
-* teachers
+* agency
+* properties
+* agents
 
 ### Phase 2
 
-* courses
-* groups
-* schedules
-* attendance
+* saved searches
+* favorites
+* viewings
+* inquiries
 
 ### Phase 3
 
 * payments
-* assignments
-* exams
-* materials
+* messaging
+* offers
+* promotions
 
 ### Phase 4
 
 * notifications
 * dashboard
 * reports
-
-If you want, I can now rewrite this into **three separate copy-paste-ready GitHub files**:
-`FRONTEND.md`, `BACKEND.md`, and `API.md`.
