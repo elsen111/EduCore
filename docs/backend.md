@@ -2,16 +2,18 @@
 
 ## Overview
 
-The backend of **Nestora** is a REST API built with **Java Spring Boot**.
+The backend of **EstateFlow** is a REST API built with **Java Spring Boot**.
 
 Its responsibilities are:
 
 * authentication and authorization
+* forgot-password with OTP and authenticated change-password workflows
 * property listing business logic
-* search, messaging, and recommendation workflows
+* agency, owner, buyer, renter, and admin workflows
+* search, messaging, inquiry, viewing, and recommendation workflows
+* dashboard aggregation for each role
 * database operations
 * file handling
-* role-based access control
 * billing, commissions, and promotion handling
 * secure communication with the frontend
 
@@ -69,7 +71,9 @@ Responsible for:
 * business rules
 * transactional logic
 * authorization checks
-* domain workflows
+* dashboard aggregation logic
+* OTP lifecycle management
+* role-specific workflows for admin, agency, owner, buyer, and renter journeys
 
 ### Repository Layer
 
@@ -97,6 +101,9 @@ Responsible for:
 * authentication
 * current user extraction
 * role checks
+* password hashing
+* OTP verification
+* session invalidation after password reset or password change
 
 ---
 
@@ -117,6 +124,33 @@ Authentication and authorization should use:
 * refresh flow
 * logout support
 * route protection by role
+* forgot-password OTP generation
+* OTP verification with expiry and max attempts
+* password reset after verified OTP
+* authenticated change-password flow
+* refresh token revocation after password changes
+
+### Password recovery and password change flow
+
+The backend should support two different password update workflows.
+
+#### Forgot-password with OTP
+
+* user submits email or phone on the forgot-password endpoint
+* backend generates a short-lived OTP
+* OTP should be hashed before persistence
+* OTP should expire after a limited time, such as 5 to 10 minutes
+* resend should respect cooldown and rate limiting
+* reset-password endpoint should only work after successful OTP verification
+* all active refresh tokens should be revoked after a successful password reset
+
+#### Change-password for authenticated users
+
+* authenticated user submits current password, new password, and confirm password
+* backend verifies current password before accepting the change
+* backend should reject weak or reused passwords if password history is implemented
+* password change should update `passwordUpdatedAt`
+* backend may optionally invalidate other active sessions
 
 ---
 
@@ -128,9 +162,11 @@ The database should support:
 * role-based user ownership
 * relationships between agencies, agents, owners, clients, and properties
 * favorites and saved search data
-* viewing appointments, inquiries, and offers
+* viewing appointments, inquiries, messages, and offers
 * payment tracking, featured listings, and ads
 * notifications and recommendation signals
+* password recovery OTP records
+* refresh token revocation and account security auditing
 
 ---
 
@@ -149,6 +185,9 @@ Fields:
 * role
 * agency
 * isActive
+* isEmailVerified
+* passwordUpdatedAt
+* lastLoginAt
 * createdAt
 
 ## Agency
@@ -164,6 +203,7 @@ Fields:
 * address
 * website
 * subscriptionPlan
+* status
 * createdAt
 
 ## Property
@@ -173,12 +213,16 @@ Fields:
 * id
 * agency
 * owner
+* assignedAgent
 * title
 * description
 * type
 * listingType
 * price
+* city
+* address
 * status
+* createdAt
 
 ## PropertyImage
 
@@ -239,8 +283,8 @@ Fields:
 
 * id
 * property
-* buyer
-* agent
+* buyerOrRenter
+* recipient
 * lastMessageAt
 * status
 
@@ -261,7 +305,8 @@ Fields:
 
 * id
 * property
-* user
+* requester
+* assignedTo
 * scheduledAt
 * status
 * note
@@ -276,6 +321,7 @@ Fields:
 * buyer
 * amount
 * status
+* counterAmount
 * message
 * createdAt
 
@@ -328,6 +374,31 @@ Fields:
 * isRead
 * createdAt
 
+## PasswordResetOtp
+
+Fields:
+
+* id
+* user
+* deliveryChannel
+* otpHash
+* attemptCount
+* expiresAt
+* verifiedAt
+* status
+* createdAt
+
+## RefreshToken
+
+Fields:
+
+* id
+* user
+* tokenHash
+* expiresAt
+* revokedAt
+* createdAt
+
 ---
 
 ## DTO Structure
@@ -339,12 +410,18 @@ DTOs should be divided into:
 * summary DTOs
 * filter DTOs
 * pagination DTOs
+* dashboard DTOs
 
 ### Examples
 
 * `RegisterRequestDto`
 * `LoginRequestDto`
 * `LoginResponseDto`
+* `ForgotPasswordRequestDto`
+* `VerifyOtpRequestDto`
+* `ResetPasswordRequestDto`
+* `ChangePasswordRequestDto`
+* `UserProfileUpdateRequestDto`
 * `PropertyCreateRequestDto`
 * `PropertyUpdateRequestDto`
 * `PropertyResponseDto`
@@ -353,6 +430,11 @@ DTOs should be divided into:
 * `ViewingCreateRequestDto`
 * `OfferCreateRequestDto`
 * `PaymentCreateRequestDto`
+* `AdminDashboardResponseDto`
+* `AgencyDashboardResponseDto`
+* `OwnerDashboardResponseDto`
+* `BuyerDashboardResponseDto`
+* `RenterDashboardResponseDto`
 * `ApiResponseDto<T>`
 * `PageResponseDto<T>`
 
@@ -382,6 +464,10 @@ Examples:
 * offer amount rules
 * promotion eligibility checks
 * agency ownership checks
+* OTP expiry checks
+* OTP attempt limit checks
+* strong password policy validation
+* current password verification for change-password
 
 ---
 
@@ -397,13 +483,15 @@ A global exception handler should return consistent responses.
 * `ForbiddenException`
 * `ConflictException`
 * `ValidationException`
+* `OtpExpiredException`
+* `OtpAttemptsExceededException`
 
 ### Example error response
 
 ```json
 {
   "success": false,
-  "message": "Property not found",
+  "message": "OTP has expired",
   "errors": null,
   "timestamp": "2026-04-19T12:10:00"
 }
@@ -415,12 +503,19 @@ A global exception handler should return consistent responses.
 
 ```bash
 backend/
-├── src/main/java/com/nestora/
+├── src/main/java/com/estateflow/
 │   ├── config/
 │   ├── controller/
-│   ├── dto/
+│   │   ├── admin/
 │   │   ├── auth/
 │   │   ├── agency/
+│   │   ├── dashboard/
+│   │   └── user/
+│   ├── dto/
+│   │   ├── admin/
+│   │   ├── auth/
+│   │   ├── agency/
+│   │   ├── dashboard/
 │   │   ├── property/
 │   │   ├── search/
 │   │   ├── inquiry/
@@ -438,7 +533,11 @@ backend/
 │   ├── repository/
 │   ├── security/
 │   ├── service/
-│   └── NestoraApplication.java
+│   │   ├── auth/
+│   │   ├── dashboard/
+│   │   ├── property/
+│   │   └── user/
+│   └── EstateFlowApplication.java
 ```
 
 ---
@@ -447,7 +546,7 @@ backend/
 
 Roles used in the system:
 
-* `SUPER_ADMIN`
+* `ADMIN`
 * `AGENCY_ADMIN`
 * `AGENT`
 * `PROPERTY_OWNER`
@@ -456,41 +555,117 @@ Roles used in the system:
 
 ### Example permissions
 
-#### SUPER_ADMIN
+#### ADMIN
 
 * manage all agencies
-* manage subscription plans
-* see platform-wide statistics
+* view platform-wide statistics
+* activate or deactivate agencies
+* review users and platform activity
+* manage subscription plan visibility and moderation workflows
 
 #### AGENCY_ADMIN
 
 * manage agency data
-* manage agents and owners
+* manage agents and owner relationships
 * manage listings and promotions
-* manage commissions and payments
+* monitor inquiries, viewings, offers, and payments
+* view agency reports
 
 #### AGENT
 
 * manage assigned listings
 * respond to inquiries
 * schedule and confirm viewings
+* coordinate offers with buyers or renters
 
 #### PROPERTY_OWNER
 
-* create own listings
-* view leads and offers
+* create and manage own listings
+* review inquiries, viewings, and offers
 * purchase featured placements
+* track listing performance and payment status
 
 #### BUYER
 
+* browse sale properties
 * save properties
 * place offers
-* book viewings and message agents
+* book viewings
+* message agencies or owners
 
 #### RENTER
 
-* save rental searches
+* browse rental properties
+* save searches and alerts
 * book viewings
-* message agents and owners
+* send rental inquiries
+* message agencies or owners
+
+---
+
+## Dashboard Support by Role
+
+The backend should expose dedicated dashboard aggregation services so each role can load a compact summary without multiple expensive frontend calls.
+
+### Admin dashboard data
+
+Should aggregate:
+
+* agency count
+* active listing count
+* user count by role
+* revenue and subscription metrics
+* recently flagged or suspended entities
+
+### Agency dashboard data
+
+Should aggregate:
+
+* total and active listings
+* leads and open inquiries
+* scheduled viewings
+* open offers
+* team workload
+* payments, commissions, and promotions
+
+### Agent dashboard data
+
+Should aggregate:
+
+* assigned listings
+* new inquiries
+* upcoming viewings
+* open offers
+* overdue follow-ups
+
+### Owner dashboard data
+
+Should aggregate:
+
+* owned listings
+* pending inquiries
+* upcoming viewings
+* open offers
+* featured plan payments
+
+### Buyer dashboard data
+
+Should aggregate:
+
+* favorites count
+* saved searches count
+* recommended properties
+* upcoming viewings
+* offer statuses
+
+### Renter dashboard data
+
+Should aggregate:
+
+* favorite rentals
+* saved rental searches
+* alert matches
+* upcoming viewings
+* inquiry activity
 
 ---

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section defines the REST API structure for **Nestora**.
+This section defines the REST API structure for **EstateFlow**.
 
 Each endpoint should clearly define:
 
@@ -88,11 +88,26 @@ public class ErrorResponseDto {
 
 ---
 
+## Role Coverage Overview
+
+The API should support the following primary role journeys.
+
+| Role | Main dashboard endpoint | Common supporting endpoints |
+| --- | --- | --- |
+| `ADMIN` | `GET /api/dashboard/admin` | `/api/admin/agencies`, `/api/admin/users`, `/api/reports/platform` |
+| `AGENCY_ADMIN` | `GET /api/dashboard/agency` | `/api/agencies/me`, `/api/agents`, `/api/owners`, `/api/properties`, `/api/viewings`, `/api/offers`, `/api/promotions` |
+| `PROPERTY_OWNER` | `GET /api/dashboard/owner` | `/api/users/me`, `/api/properties`, `/api/inquiries/property/{propertyId}`, `/api/offers/property/{propertyId}`, `/api/payments/me` |
+| `BUYER` | `GET /api/dashboard/buyer` | `/api/favorites`, `/api/saved-searches`, `/api/viewings`, `/api/offers`, `/api/messages/conversations` |
+| `RENTER` | `GET /api/dashboard/renter` | `/api/favorites`, `/api/saved-searches`, `/api/viewings`, `/api/inquiries/me`, `/api/messages/conversations` |
+| `AGENT` | `GET /api/dashboard/agent` | `/api/agents/{id}`, `/api/properties`, `/api/viewings`, `/api/offers/property/{propertyId}` |
+
+---
+
 ## 1. Auth API
 
 ## POST `/api/auth/register`
 
-Register a new agency admin account.
+Register a new account for agency admin, property owner, buyer, or renter.
 
 ### Authorization
 
@@ -102,24 +117,34 @@ Register a new agency admin account.
 
 ```java
 public class RegisterRequestDto {
+    private String role;
     private String agencyName;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
     private String phone;
+    private String inviteCode;
 }
 ```
 
-### Request Body
+### Business Rules
+
+* `AGENCY_ADMIN` requires `agencyName`
+* `PROPERTY_OWNER` may optionally use `inviteCode` if onboarding under an agency
+* `BUYER` and `RENTER` do not require agency fields
+* password must satisfy platform password policy
+
+### Example Request Body
 
 ```json
 {
+  "role": "AGENCY_ADMIN",
   "agencyName": "Skyline Realty",
   "firstName": "Emma",
   "lastName": "Johnson",
   "email": "owner@skylinerealty.com",
-  "password": "StrongPassword123",
+  "password": "StrongPassword123!",
   "phone": "+12025550123"
 }
 ```
@@ -135,6 +160,7 @@ public class RegisterRequestDto {
   "data": {
     "userId": 1,
     "agencyId": 1,
+    "role": "AGENCY_ADMIN",
     "email": "owner@skylinerealty.com"
   }
 }
@@ -173,7 +199,7 @@ public class LoginRequestDto {
 ```json
 {
   "email": "owner@skylinerealty.com",
-  "password": "StrongPassword123"
+  "password": "StrongPassword123!"
 }
 ```
 
@@ -213,6 +239,32 @@ public class LoginResponseDto {
 {
   "success": false,
   "message": "Invalid email or password"
+}
+```
+
+---
+
+## GET `/api/auth/me`
+
+Return the currently authenticated user and role context.
+
+### Authorization
+
+* Authenticated user
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "firstName": "Emma",
+    "lastName": "Johnson",
+    "email": "owner@skylinerealty.com",
+    "role": "AGENCY_ADMIN",
+    "agencyId": 1
+  }
 }
 ```
 
@@ -267,7 +319,315 @@ Logout current user.
 
 ---
 
-## 2. Agency API
+## POST `/api/auth/forgot-password`
+
+Start the forgot-password flow and send OTP to the user.
+
+### Authorization
+
+* Public
+
+### Request DTO
+
+```java
+public class ForgotPasswordRequestDto {
+    private String email;
+    private String deliveryChannel;
+}
+```
+
+### Request Body
+
+```json
+{
+  "email": "buyer@estateflow.com",
+  "deliveryChannel": "EMAIL"
+}
+```
+
+### Responses
+
+#### `200 OK`
+
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully",
+  "data": {
+    "otpExpiresInSeconds": 300,
+    "maskedDestination": "b***@estateflow.com"
+  }
+}
+```
+
+#### `404 Not Found`
+
+```json
+{
+  "success": false,
+  "message": "Account not found"
+}
+```
+
+---
+
+## POST `/api/auth/forgot-password/verify-otp`
+
+Verify the OTP code before allowing password reset.
+
+### Authorization
+
+* Public
+
+### Request DTO
+
+```java
+public class VerifyOtpRequestDto {
+    private String email;
+    private String otp;
+}
+```
+
+### Request Body
+
+```json
+{
+  "email": "buyer@estateflow.com",
+  "otp": "482913"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "OTP verified successfully",
+  "data": {
+    "resetToken": "password-reset-token"
+  }
+}
+```
+
+---
+
+## POST `/api/auth/forgot-password/resend-otp`
+
+Resend a new OTP when cooldown rules allow it.
+
+### Authorization
+
+* Public
+
+### Request Body
+
+```json
+{
+  "email": "buyer@estateflow.com"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "OTP resent successfully"
+}
+```
+
+---
+
+## POST `/api/auth/reset-password`
+
+Reset password after successful OTP verification.
+
+### Authorization
+
+* Public with verified reset token
+
+### Request DTO
+
+```java
+public class ResetPasswordRequestDto {
+    private String resetToken;
+    private String newPassword;
+    private String confirmPassword;
+}
+```
+
+### Request Body
+
+```json
+{
+  "resetToken": "password-reset-token",
+  "newPassword": "NewStrongPassword123!",
+  "confirmPassword": "NewStrongPassword123!"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Password reset successfully"
+}
+```
+
+---
+
+## PUT `/api/auth/change-password`
+
+Change password for an authenticated user from the security settings page.
+
+### Authorization
+
+* Authenticated user
+
+### Request DTO
+
+```java
+public class ChangePasswordRequestDto {
+    private String currentPassword;
+    private String newPassword;
+    private String confirmPassword;
+    private boolean logoutOtherSessions;
+}
+```
+
+### Request Body
+
+```json
+{
+  "currentPassword": "StrongPassword123!",
+  "newPassword": "EvenStrongerPassword456!",
+  "confirmPassword": "EvenStrongerPassword456!",
+  "logoutOtherSessions": true
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
+
+---
+
+## 2. Profile API
+
+## GET `/api/users/me`
+
+Get current user profile data for settings pages.
+
+### Authorization
+
+* Authenticated user
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 8,
+    "firstName": "Olivia",
+    "lastName": "Reed",
+    "email": "buyer@estateflow.com",
+    "phone": "+12025550190",
+    "role": "BUYER"
+  }
+}
+```
+
+---
+
+## PUT `/api/users/me`
+
+Update current user profile settings.
+
+### Authorization
+
+* Authenticated user
+
+### Request Body
+
+```json
+{
+  "firstName": "Olivia",
+  "lastName": "Reed",
+  "phone": "+12025550190"
+}
+```
+
+---
+
+## 3. Admin API
+
+## GET `/api/admin/agencies`
+
+List agencies for platform administration.
+
+### Authorization
+
+* `ADMIN`
+
+### Query Params
+
+* `page`
+* `size`
+* `search`
+* `status`
+* `subscriptionPlan`
+
+---
+
+## PUT `/api/admin/agencies/{id}/status`
+
+Activate, suspend, or review an agency account.
+
+### Authorization
+
+* `ADMIN`
+
+### Path Params
+
+* `id`
+
+### Request Body
+
+```json
+{
+  "status": "SUSPENDED",
+  "reason": "Subscription payment overdue"
+}
+```
+
+---
+
+## GET `/api/admin/users`
+
+List platform users by role or status.
+
+### Authorization
+
+* `ADMIN`
+
+### Query Params
+
+* `page`
+* `size`
+* `search`
+* `role`
+* `isActive`
+
+---
+
+## 4. Agency API
 
 ## GET `/api/agencies/me`
 
@@ -288,7 +648,8 @@ Get current agency data.
     "logoUrl": "/uploads/logo.png",
     "email": "info@skylinerealty.com",
     "phone": "+12025550123",
-    "address": "Austin, Texas"
+    "address": "Austin, Texas",
+    "subscriptionPlan": "PRO"
   }
 }
 ```
@@ -318,7 +679,153 @@ Update agency profile.
 
 ---
 
-## 3. Property API
+## 5. Agent API
+
+## POST `/api/agents`
+
+Create agent.
+
+### Authorization
+
+* `AGENCY_ADMIN`
+
+### Request Body
+
+```json
+{
+  "firstName": "Liam",
+  "lastName": "Carter",
+  "email": "liam@skylinerealty.com",
+  "phone": "+12025550124",
+  "specialization": "Luxury Homes",
+  "licenseNumber": "TX-784421"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Agent created successfully",
+  "data": {
+    "id": 3,
+    "firstName": "Liam",
+    "lastName": "Carter"
+  }
+}
+```
+
+---
+
+## GET `/api/agents`
+
+List agents.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
+
+### Query Params
+
+* `page`
+* `size`
+* `search`
+* `specialization`
+
+---
+
+## GET `/api/agents/{id}`
+
+Get agent details.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`, `AGENT`
+
+---
+
+## PUT `/api/agents/{id}`
+
+Update agent.
+
+### Authorization
+
+* `AGENCY_ADMIN`
+
+---
+
+## DELETE `/api/agents/{id}`
+
+Delete or deactivate agent.
+
+### Authorization
+
+* `AGENCY_ADMIN`
+
+---
+
+## 6. Owner API
+
+## POST `/api/owners`
+
+Create or invite a property owner record under an agency.
+
+### Authorization
+
+* `AGENCY_ADMIN`
+
+### Request Body
+
+```json
+{
+  "firstName": "Noah",
+  "lastName": "Turner",
+  "email": "owner@skylinehomes.com",
+  "phone": "+12025550180",
+  "notes": "Portfolio owner with 3 active listings"
+}
+```
+
+---
+
+## GET `/api/owners`
+
+List owners managed by the current agency.
+
+### Authorization
+
+* `AGENCY_ADMIN`
+
+### Query Params
+
+* `page`
+* `size`
+* `search`
+
+---
+
+## GET `/api/owners/{id}`
+
+Get owner details.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
+
+---
+
+## PUT `/api/owners/{id}`
+
+Update owner profile or agency notes.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
+
+---
+
+## 7. Property API
 
 ## POST `/api/properties`
 
@@ -396,6 +903,9 @@ Get paginated properties list.
 * `status`
 * `minPrice`
 * `maxPrice`
+* `agencyId`
+* `ownerId`
+* `assignedAgentId`
 
 ### Example
 
@@ -509,93 +1019,7 @@ Archive property listing.
 
 ---
 
-## 4. Agent API
-
-## POST `/api/agents`
-
-Create agent.
-
-### Authorization
-
-* `AGENCY_ADMIN`
-
-### Request Body
-
-```json
-{
-  "firstName": "Liam",
-  "lastName": "Carter",
-  "email": "liam@skylinerealty.com",
-  "phone": "+12025550124",
-  "specialization": "Luxury Homes",
-  "licenseNumber": "TX-784421"
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "message": "Agent created successfully",
-  "data": {
-    "id": 3,
-    "firstName": "Liam",
-    "lastName": "Carter"
-  }
-}
-```
-
----
-
-## GET `/api/agents`
-
-List agents.
-
-### Authorization
-
-* `AGENCY_ADMIN`, `PROPERTY_OWNER`
-
-### Query Params
-
-* `page`
-* `size`
-* `search`
-* `specialization`
-
----
-
-## GET `/api/agents/{id}`
-
-Get agent details.
-
-### Authorization
-
-* `AGENCY_ADMIN`, `PROPERTY_OWNER`, `AGENT`
-
----
-
-## PUT `/api/agents/{id}`
-
-Update agent.
-
-### Authorization
-
-* `AGENCY_ADMIN`
-
----
-
-## DELETE `/api/agents/{id}`
-
-Delete or deactivate agent.
-
-### Authorization
-
-* `AGENCY_ADMIN`
-
----
-
-## 5. Saved Search API
+## 8. Saved Search API
 
 ## POST `/api/saved-searches`
 
@@ -682,7 +1106,7 @@ Delete saved search.
 
 ---
 
-## 6. Favorites API
+## 9. Favorites API
 
 ## POST `/api/favorites/{propertyId}`
 
@@ -725,6 +1149,10 @@ Remove property from favorites.
 
 List favorite properties.
 
+### Authorization
+
+* `BUYER`, `RENTER`
+
 ### Query Params
 
 * `page`
@@ -734,7 +1162,7 @@ List favorite properties.
 
 ---
 
-## 7. Viewing API
+## 10. Viewing API
 
 ## POST `/api/viewings`
 
@@ -777,6 +1205,10 @@ Create viewing request.
 
 Get viewings.
 
+### Authorization
+
+* Authenticated users with role-based filtering
+
 ### Query Params
 
 * `propertyId`
@@ -787,7 +1219,31 @@ Get viewings.
 
 ---
 
-## 8. Inquiry API
+## PUT `/api/viewings/{id}/status`
+
+Confirm, reschedule, complete, or cancel a viewing.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
+
+### Path Params
+
+* `id`
+
+### Request Body
+
+```json
+{
+  "status": "CONFIRMED",
+  "scheduledAt": "2026-05-03T14:30:00",
+  "note": "Updated after phone confirmation"
+}
+```
+
+---
+
+## 11. Inquiry API
 
 ## POST `/api/inquiries`
 
@@ -846,7 +1302,41 @@ Get property inquiries.
 
 ---
 
-## 9. Payment API
+## GET `/api/inquiries/me`
+
+Get inquiries created by the current buyer or renter.
+
+### Authorization
+
+* `BUYER`, `RENTER`
+
+### Query Params
+
+* `status`
+* `page`
+* `size`
+
+---
+
+## PUT `/api/inquiries/{id}/status`
+
+Update inquiry status.
+
+### Authorization
+
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
+
+### Request Body
+
+```json
+{
+  "status": "CONTACTED"
+}
+```
+
+---
+
+## 12. Payment API
 
 ## POST `/api/payments`
 
@@ -885,6 +1375,10 @@ Create payment record.
 
 Get payments list.
 
+### Authorization
+
+* `ADMIN`, `AGENCY_ADMIN`
+
 ### Query Params
 
 * `userId`
@@ -901,9 +1395,13 @@ Get payments list.
 
 Get current user payment history.
 
+### Authorization
+
+* `AGENCY_ADMIN`, `PROPERTY_OWNER`
+
 ---
 
-## 10. Messaging API
+## 13. Messaging API
 
 ## POST `/api/messages/conversations`
 
@@ -925,13 +1423,40 @@ Create conversation.
 
 ---
 
+## GET `/api/messages/conversations`
+
+List current user conversations.
+
+### Authorization
+
+* Authenticated users involved in messaging
+
+### Query Params
+
+* `propertyId`
+* `status`
+* `page`
+* `size`
+
+---
+
+## GET `/api/messages/conversations/{id}`
+
+List messages for conversation.
+
+### Authorization
+
+* Conversation participants only
+
+---
+
 ## POST `/api/messages/conversations/{id}/send`
 
 Send message.
 
 ### Authorization
 
-* `BUYER`, `RENTER`, `AGENT`, `PROPERTY_OWNER`
+* Conversation participants only
 
 ### Content-Type
 
@@ -957,13 +1482,7 @@ Send message.
 
 ---
 
-## GET `/api/messages/conversations/{id}`
-
-List messages for conversation.
-
----
-
-## 11. Offer API
+## 14. Offer API
 
 ## POST `/api/offers`
 
@@ -983,6 +1502,22 @@ Create offer.
   "message": "Offer contingent on inspection"
 }
 ```
+
+---
+
+## GET `/api/offers/me`
+
+Get offers created by the current buyer.
+
+### Authorization
+
+* `BUYER`
+
+### Query Params
+
+* `status`
+* `page`
+* `size`
 
 ---
 
@@ -1018,9 +1553,13 @@ Update offer status.
 
 List offers for property.
 
+### Authorization
+
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
+
 ---
 
-## 12. Promotion API
+## 15. Promotion API
 
 ## POST `/api/promotions`
 
@@ -1068,9 +1607,13 @@ Upload banner asset.
 
 List promotions by property.
 
+### Authorization
+
+* `AGENCY_ADMIN`, `AGENT`, `PROPERTY_OWNER`
+
 ---
 
-## 13. Notification API
+## 16. Notification API
 
 ## GET `/api/notifications/me`
 
@@ -1109,7 +1652,37 @@ Mark notification as read.
 
 ---
 
-## 14. Dashboard API
+## 17. Dashboard API
+
+## GET `/api/dashboard/admin`
+
+Get admin dashboard statistics.
+
+### Authorization
+
+* `ADMIN`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalAgencies": 42,
+    "activeListings": 1280,
+    "usersByRole": {
+      "AGENCY_ADMIN": 42,
+      "PROPERTY_OWNER": 185,
+      "BUYER": 670,
+      "RENTER": 390
+    },
+    "monthlyRevenue": 18400,
+    "suspendedAgencies": 2
+  }
+}
+```
+
+---
 
 ## GET `/api/dashboard/agency`
 
@@ -1127,10 +1700,88 @@ Get agency dashboard statistics.
   "data": {
     "totalListings": 120,
     "activeAgents": 12,
+    "activeOwners": 28,
     "featuredListings": 15,
     "monthlyRevenue": 8400,
     "openInquiries": 27,
-    "scheduledViewings": 18
+    "scheduledViewings": 18,
+    "openOffers": 11
+  }
+}
+```
+
+---
+
+## GET `/api/dashboard/owner`
+
+Get owner dashboard data.
+
+### Authorization
+
+* `PROPERTY_OWNER`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "ownedListings": 6,
+    "activeListings": 4,
+    "pendingInquiries": 9,
+    "upcomingViewings": 3,
+    "openOffers": 2,
+    "latestPaymentStatus": "PAID"
+  }
+}
+```
+
+---
+
+## GET `/api/dashboard/buyer`
+
+Get buyer dashboard data.
+
+### Authorization
+
+* `BUYER`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "favoritesCount": 12,
+    "savedSearchesCount": 3,
+    "recommendedPropertiesCount": 8,
+    "upcomingViewings": 2,
+    "activeOffers": 1
+  }
+}
+```
+
+---
+
+## GET `/api/dashboard/renter`
+
+Get renter dashboard data.
+
+### Authorization
+
+* `RENTER`
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "favoriteRentalsCount": 7,
+    "savedSearchesCount": 4,
+    "newAlertMatches": 5,
+    "upcomingViewings": 1,
+    "openInquiries": 3
   }
 }
 ```
@@ -1145,19 +1796,39 @@ Get agent dashboard data.
 
 * `AGENT`
 
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "assignedListings": 18,
+    "newInquiries": 6,
+    "upcomingViewings": 4,
+    "openOffers": 3
+  }
+}
+```
+
 ---
 
-## GET `/api/dashboard/client`
+## 18. Reports API
 
-Get buyer or renter dashboard data.
+## GET `/api/reports/platform`
+
+Get platform-level report data.
 
 ### Authorization
 
-* `BUYER`, `RENTER`
+* `ADMIN`
+
+### Query Params
+
+* `from`
+* `to`
+* `groupBy`
 
 ---
-
-## 15. Reports API
 
 ## GET `/api/reports/listings`
 
@@ -1204,31 +1875,36 @@ Get inquiry and offer conversion report.
 
 ---
 
-## Example Development Order for API
+## 19. Example Development Order for API
 
 ### Phase 1
 
 * auth
-* agency
-* properties
-* agents
+* forgot-password OTP
+* reset-password
+* change-password
+* profile
 
 ### Phase 2
 
-* saved searches
-* favorites
-* viewings
-* inquiries
+* agency
+* agents
+* owners
+* properties
 
 ### Phase 3
 
-* payments
+* saved searches
+* favorites
+* inquiries
+* viewings
 * messaging
 * offers
-* promotions
 
 ### Phase 4
 
+* payments
+* promotions
 * notifications
-* dashboard
+* dashboards
 * reports
