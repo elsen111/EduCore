@@ -2,7 +2,7 @@
 
 A full-stack real estate SaaS platform built for agencies, brokers, property owners, buyers, and renters.
 
-Nestora helps users buy, sell, and rent properties through searchable listings, image-rich property pages, messaging, viewing requests, payments, promotions, and analytics in one centralized system.
+EstateFlow helps users buy, sell, and rent properties through searchable listings, image-rich property pages, messaging, viewing requests, payments, promotions, and analytics in one centralized system.
 
 The project combines a modern frontend built with React and a planned backend architecture built with Java Spring Boot.
 
@@ -14,7 +14,7 @@ The current repository contains the frontend scaffold and project documentation.
 
 Many real estate businesses still manage listings, inquiries, appointments, and payments manually using spreadsheets, social media posts, phone calls, and messaging apps.
 
-Nestora aims to digitize the full workflow of a real estate platform by providing:
+EstateFlow aims to digitize the full workflow of a real estate platform by providing:
 
 * Property listing management
 * Property search and filtering
@@ -492,7 +492,7 @@ This avoids:
 
 ## 💡 Business Value
 
-Nestora can become a real SaaS platform for:
+EstateFlow can become a real SaaS platform for:
 
 * Real estate agencies
 * Independent brokers
@@ -519,7 +519,7 @@ Many real estate businesses still use manual methods to manage listings, leads, 
 
 ### Solution
 
-Nestora provides a centralized digital platform that simplifies property listing, search, inquiry, and monetization workflows.
+EstateFlow provides a centralized digital platform that simplifies property listing, search, inquiry, and monetization workflows.
 
 ### Benefits
 
@@ -537,8 +537,8 @@ Nestora provides a centralized digital platform that simplifies property listing
 ### 1. Clone the Repository
 
 ```bash id="b9tdfu"
-git clone https://github.com/your-username/nestora.git
-cd nestora
+git clone https://github.com/your-username/EstateFlow.git
+cd EstateFlow
 ```
 
 ---
@@ -595,7 +595,7 @@ cd backend
 Create a PostgreSQL database:
 
 ```sql id="f0p2wr"
-CREATE DATABASE nestora_real_estate_db;
+CREATE DATABASE estateFlow_real_estate_db;
 ```
 
 ### 8. Configure Application Properties
@@ -609,7 +609,7 @@ src/main/resources/application.properties
 Example configuration:
 
 ```properties id="g3h7as"
-spring.datasource.url=jdbc:postgresql://localhost:5432/nestora_real_estate_db
+spring.datasource.url=jdbc:postgresql://localhost:5432/estateFlow_real_estate_db
 spring.datasource.username=postgres
 spring.datasource.password=your_password
 
@@ -674,10 +674,10 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: nestora_real_estate_db
+    container_name: estateFlow_real_estate_db
     restart: always
     environment:
-      POSTGRES_DB: nestora_real_estate_db
+      POSTGRES_DB: _real_estate_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -685,19 +685,19 @@ services:
 
   backend:
     build: ./backend
-    container_name: nestora_backend
+    container_name: estateFlow_backend
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nestora_real_estate_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/estateFlow_real_estate_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
   frontend:
     build: ./frontend
-    container_name: nestora_frontend
+    container_name:estateFlow_frontend
     ports:
       - "5173:5173"
     depends_on:
@@ -710,27 +710,27 @@ services:
 
 ```txt id="aw50xq"
 Super Admin
-Email: admin@nestora.com
+Email: admin@estateFlow.com
 Password: Admin123!
 
 Agency Admin
-Email: agency@nestora.com
+Email: agency@estateFlow.com
 Password: Agency123!
 
 Agent
-Email: agent@nestora.com
+Email: agent@estateFlow.com
 Password: Agent123!
 
 Property Owner
-Email: owner@nestora.com
+Email: owner@estateFlow.com
 Password: Owner123!
 
 Buyer
-Email: buyer@nestora.com
+Email: buyer@estateFlow.com
 Password: Buyer123!
 
 Renter
-Email: renter@nestora.com
+Email: renter@estateFlow.com
 Password: Renter123!
 ```
 
