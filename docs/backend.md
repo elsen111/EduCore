@@ -2,17 +2,17 @@
 
 ## Overview
 
-The backend of **EduCore** is a REST API built with **Java Spring Boot**.
+The backend of **Nestora** is a REST API built with **Java Spring Boot**.
 
 Its responsibilities are:
 
 * authentication and authorization
-* business logic
-* input validation
+* property listing business logic
+* search, messaging, and recommendation workflows
 * database operations
 * file handling
 * role-based access control
-* reporting and analytics
+* billing, commissions, and promotion handling
 * secure communication with the frontend
 
 ---
@@ -124,13 +124,13 @@ Authentication and authorization should use:
 
 The database should support:
 
-* academy-based logical multi-tenancy
+* agency-based logical multi-tenancy
 * role-based user ownership
-* relationships between teachers, students, courses, and groups
-* schedule and attendance data
-* payment tracking
-* assignment and exam workflows
-* notifications
+* relationships between agencies, agents, owners, clients, and properties
+* favorites and saved search data
+* viewing appointments, inquiries, and offers
+* payment tracking, featured listings, and ads
+* notifications and recommendation signals
 
 ---
 
@@ -147,11 +147,11 @@ Fields:
 * password
 * phone
 * role
-* academy
+* agency
 * isActive
 * createdAt
 
-## Academy
+## Agency
 
 Fields:
 
@@ -166,172 +166,156 @@ Fields:
 * subscriptionPlan
 * createdAt
 
-## Student
+## Property
 
 Fields:
 
 * id
-* academy
-* firstName
-* lastName
-* email
-* phone
-* birthDate
-* parentName
-* parentPhone
-* enrolledAt
-* status
-
-## Teacher
-
-Fields:
-
-* id
-* academy
-* firstName
-* lastName
-* email
-* phone
-* specialization
-* salary
-* status
-
-## Course
-
-Fields:
-
-* id
-* academy
+* agency
+* owner
 * title
 * description
-* category
-* level
-* durationInWeeks
+* type
+* listingType
 * price
-* thumbnailUrl
 * status
 
-## Group
+## PropertyImage
 
 Fields:
 
 * id
-* academy
-* course
-* teacher
+* property
+* imageUrl
+* sortOrder
+* isCover
+* createdAt
+
+## PropertyFeature
+
+Fields:
+
+* id
+* property
 * name
-* capacity
-* startDate
-* endDate
-* classroom
-* meetingLink
+* value
+* category
+
+## Favorite
+
+Fields:
+
+* id
+* user
+* property
+* createdAt
+
+## SavedSearch
+
+Fields:
+
+* id
+* user
+* name
+* filters
+* isAlertEnabled
+* createdAt
+
+## Inquiry
+
+Fields:
+
+* id
+* property
+* sender
+* recipient
+* message
+* status
+* createdAt
+
+## Conversation
+
+Fields:
+
+* id
+* property
+* buyer
+* agent
+* lastMessageAt
 * status
 
-## Enrollment
+## Message
 
 Fields:
 
 * id
-* student
-* group
-* enrolledAt
-* status
+* conversation
+* sender
+* content
+* attachmentUrl
+* createdAt
 
-## Schedule
-
-Fields:
-
-* id
-* group
-* teacher
-* weekday
-* startTime
-* endTime
-* room
-* meetingLink
-
-## Attendance
+## Viewing
 
 Fields:
 
 * id
-* student
-* group
-* schedule
-* date
+* property
+* user
+* scheduledAt
 * status
 * note
+* createdAt
+
+## Offer
+
+Fields:
+
+* id
+* property
+* buyer
+* amount
+* status
+* message
+* createdAt
 
 ## Payment
 
 Fields:
 
 * id
-* student
+* user
+* property
+* purpose
 * amount
-* paidAmount
-* dueDate
-* paidAt
-* paymentMethod
+* provider
 * status
-* note
+* paidAt
 
-## Assignment
+## Promotion
 
 Fields:
 
 * id
-* group
+* property
+* planType
+* startDate
+* endDate
+* status
+* budget
+
+## AdPlacement
+
+Fields:
+
+* id
+* agency
 * title
-* description
-* deadline
-* attachmentUrl
-* createdBy
-
-## Submission
-
-Fields:
-
-* id
-* assignment
-* student
-* fileUrl
-* submittedAt
-* feedback
-* score
-
-## Exam
-
-Fields:
-
-* id
-* group
-* title
-* description
-* examDate
-* totalScore
-
-## Grade
-
-Fields:
-
-* id
-* exam
-* student
-* score
-* passed
-
-## Material
-
-Fields:
-
-* id
-* course
-* title
-* type
-* fileUrl
-* videoUrl
-* description
+* imageUrl
+* targetUrl
+* startDate
+* endDate
+* status
 
 ## Notification
 
@@ -361,15 +345,14 @@ DTOs should be divided into:
 * `RegisterRequestDto`
 * `LoginRequestDto`
 * `LoginResponseDto`
-* `StudentCreateRequestDto`
-* `StudentUpdateRequestDto`
-* `StudentResponseDto`
-* `TeacherCreateRequestDto`
-* `TeacherResponseDto`
-* `CourseCreateRequestDto`
-* `CourseResponseDto`
-* `GroupCreateRequestDto`
-* `AttendanceMarkRequestDto`
+* `PropertyCreateRequestDto`
+* `PropertyUpdateRequestDto`
+* `PropertyResponseDto`
+* `SavedSearchCreateRequestDto`
+* `InquiryCreateRequestDto`
+* `ViewingCreateRequestDto`
+* `OfferCreateRequestDto`
+* `PaymentCreateRequestDto`
 * `ApiResponseDto<T>`
 * `PageResponseDto<T>`
 
@@ -392,11 +375,13 @@ Backend validation should include:
 Examples:
 
 * unique email
-* no teacher schedule overlap
-* no room double-booking
-* group capacity limit
-* academy ownership checks
-* assignment submission deadline checks
+* listing ownership checks
+* valid sale and rent pricing
+* image count and file type limits
+* viewing slot conflict prevention
+* offer amount rules
+* promotion eligibility checks
+* agency ownership checks
 
 ---
 
@@ -418,7 +403,7 @@ A global exception handler should return consistent responses.
 ```json
 {
   "success": false,
-  "message": "Student not found",
+  "message": "Property not found",
   "errors": null,
   "timestamp": "2026-04-19T12:10:00"
 }
@@ -430,21 +415,21 @@ A global exception handler should return consistent responses.
 
 ```bash
 backend/
-├── src/main/java/com/educore/
+├── src/main/java/com/nestora/
 │   ├── config/
 │   ├── controller/
 │   ├── dto/
 │   │   ├── auth/
-│   │   ├── academy/
-│   │   ├── student/
-│   │   ├── teacher/
-│   │   ├── course/
-│   │   ├── group/
-│   │   ├── attendance/
+│   │   ├── agency/
+│   │   ├── property/
+│   │   ├── search/
+│   │   ├── inquiry/
+│   │   ├── message/
+│   │   ├── viewing/
+│   │   ├── offer/
 │   │   ├── payment/
-│   │   ├── assignment/
-│   │   ├── exam/
-│   │   ├── material/
+│   │   ├── promotion/
+│   │   ├── notification/
 │   │   └── common/
 │   ├── entity/
 │   ├── enums/
@@ -453,7 +438,7 @@ backend/
 │   ├── repository/
 │   ├── security/
 │   ├── service/
-│   └── EduCoreApplication.java
+│   └── NestoraApplication.java
 ```
 
 ---
@@ -463,45 +448,49 @@ backend/
 Roles used in the system:
 
 * `SUPER_ADMIN`
-* `ACADEMY_MANAGER`
-* `TEACHER`
-* `STUDENT`
-* `PARENT`
-* `STAFF`
+* `AGENCY_ADMIN`
+* `AGENT`
+* `PROPERTY_OWNER`
+* `BUYER`
+* `RENTER`
 
 ### Example permissions
 
 #### SUPER_ADMIN
 
-* manage all academies
+* manage all agencies
 * manage subscription plans
 * see platform-wide statistics
 
-#### ACADEMY_MANAGER
+#### AGENCY_ADMIN
 
-* manage academy data
-* manage students
-* manage teachers
-* manage courses and groups
-* manage payments
+* manage agency data
+* manage agents and owners
+* manage listings and promotions
+* manage commissions and payments
 
-#### TEACHER
+#### AGENT
 
-* manage attendance for assigned groups
-* create assignments
-* enter grades
+* manage assigned listings
+* respond to inquiries
+* schedule and confirm viewings
 
-#### STUDENT
+#### PROPERTY_OWNER
 
-* see own courses
-* submit homework
-* view grades and payments
+* create own listings
+* view leads and offers
+* purchase featured placements
 
-#### PARENT
+#### BUYER
 
-* view linked child attendance
-* view child grades
-* view payment status
+* save properties
+* place offers
+* book viewings and message agents
+
+#### RENTER
+
+* save rental searches
+* book viewings
+* message agents and owners
 
 ---
-

@@ -1,27 +1,30 @@
-# EduCore — Academy Management and Learning Platform
+# EstateFlow — Real Estate Marketplace and Property Platform
 
-A full-stack academy management SaaS platform built for training centers, language schools, tutoring centers, and educational institutes.
+A full-stack real estate SaaS platform built for agencies, brokers, property owners, buyers, and renters.
 
-EduCore helps academies manage students, teachers, schedules, attendance, payments, assignments, exams, and course materials in one centralized system.
+Nestora helps users buy, sell, and rent properties through searchable listings, image-rich property pages, messaging, viewing requests, payments, promotions, and analytics in one centralized system.
 
-The project combines a modern frontend built with React and a powerful backend built with Java Spring Boot.
+The project combines a modern frontend built with React and a planned backend architecture built with Java Spring Boot.
+
+The current repository contains the frontend scaffold and project documentation. The Spring Boot backend described below represents the intended full-stack architecture for the complete version of the project.
 
 ---
 
 ## 🚀 Project Purpose
 
-Many academies still manage operations manually using spreadsheets, paper notes, and messaging apps.
+Many real estate businesses still manage listings, inquiries, appointments, and payments manually using spreadsheets, social media posts, phone calls, and messaging apps.
 
-EduCore aims to digitize the full workflow of an academy by providing:
+Nestora aims to digitize the full workflow of a real estate platform by providing:
 
-* Student management
-* Teacher management
-* Course management
-* Attendance tracking
-* Payment tracking
-* Scheduling
-* Homework and exams
-* Notifications
+* Property listing management
+* Property search and filtering
+* Image-rich listing previews
+* Map-based property exploration
+* Favorites and saved searches
+* Viewing request management
+* Messaging and inquiries
+* Offer tracking
+* Payment and monetization tools
 * Reports and analytics
 * Public website pages
 
@@ -29,12 +32,12 @@ EduCore aims to digitize the full workflow of an academy by providing:
 
 ## 🎯 Main Goals
 
-* Centralize all academy operations in one platform
-* Reduce manual work and mistakes
-* Improve communication between teachers, students, parents, and staff
-* Provide detailed reports and analytics
+* Centralize property buying, selling, and renting workflows in one platform
+* Reduce manual work and missed leads
+* Improve communication between agencies, agents, owners, buyers, and renters
+* Provide detailed reports, analytics, and recommendation-ready architecture
 * Support multiple user roles
-* Create a scalable SaaS architecture for future business growth
+* Create a scalable SaaS and marketplace architecture for future business growth
 
 ---
 
@@ -46,67 +49,70 @@ The system owner who manages the whole platform.
 
 #### Permissions
 
-* Manage all academies
+* Manage all agencies
 * View platform-wide statistics
-* Activate or deactivate academy accounts
+* Activate or deactivate agency accounts
 * Manage subscription plans
 * Control system settings
 * Monitor all users
 
-### 2. Academy Owner / Manager
+### 2. Agency Owner / Admin
 
-The academy owner who uses the platform.
+The agency owner or manager who uses the platform.
 
 #### Permissions
 
-* Manage academy profile
-* Add teachers and students
-* Create courses and groups
-* Manage schedules
-* Track payments
+* Manage agency profile
+* Add agents and staff
+* Create and manage property listings
+* Manage promotions and featured listings
+* Track commissions and payments
 * View reports
-* Manage staff accounts
+* Manage agency accounts
 
-### 3. Teacher
-
-#### Permissions
-
-* View assigned courses and groups
-* Mark attendance
-* Upload materials
-* Create homework
-* Enter exam results
-* Communicate with students
-
-### 4. Student
+### 3. Agent
 
 #### Permissions
 
-* View enrolled courses
-* Access schedules
-* Submit homework
-* View grades
-* Watch course materials
-* Check payment status
+* View assigned properties
+* Update listing details
+* Respond to inquiries
+* Schedule viewings
+* Track offers
+* Communicate with buyers and renters
 
-### 5. Parent
-
-#### Permissions
-
-* Monitor child attendance
-* View grades and performance
-* Check payment status
-* Receive notifications
-
-### 6. Receptionist / Staff
+### 4. Property Owner
 
 #### Permissions
 
-* Register students
-* Manage student requests
-* Update schedules
-* Track fee collection
-* Handle administrative tasks
+* Create and manage own listings
+* Upload property photos
+* View inquiries and offer activity
+* Purchase featured listing plans
+* Track listing performance
+* Monitor payment status
+
+### 5. Buyer
+
+#### Permissions
+
+* Browse sale properties
+* Search and filter listings
+* Save favorite properties
+* Book viewings
+* Message agents
+* Place offers
+
+### 6. Renter
+
+#### Permissions
+
+* Browse rental properties
+* Save searches
+* Receive listing alerts
+* Book viewings
+* Message agents or owners
+* Track rental inquiries
 
 ---
 
@@ -116,7 +122,7 @@ The academy owner who uses the platform.
 
 #### Features
 
-* Register academy account
+* Register agency or user account
 * Login and logout
 * Forgot password
 * Reset password
@@ -127,11 +133,11 @@ The academy owner who uses the platform.
 
 ---
 
-### Academy Profile Module
+### Agency Profile Module
 
 #### Features
 
-* Academy name
+* Agency name
 * Logo upload
 * Description
 * Contact information
@@ -143,163 +149,128 @@ The academy owner who uses the platform.
 
 ---
 
-### Student Management Module
+### Property Listing Management Module
 
 #### Features
 
-* Add, edit, delete students
-* Student profile page
-* Student photo
-* Parent information
-* Emergency contact
-* Enrollment date
-* Assigned courses
-* Assigned groups
-* Attendance history
-* Payment history
+* Add, edit, delete property listings
+* Property details page
+* Property image gallery
+* Property type and listing type
+* Price and status
+* Amenities and features
+* Address and map coordinates
+* Assigned agent
+* Listing status and visibility
 * Notes and comments
-* Student search and filtering
+* Listing search and filtering
 
 ---
 
-### Teacher Management Module
+### Agent Management Module
 
 #### Features
 
-* Add, edit, delete teachers
-* Teacher profile
-* Assigned subjects
-* Assigned groups
-* Salary information
+* Add, edit, delete agents
+* Agent profile
+* Assigned listings
+* Specialization information
+* License information
 * Available hours
 * Performance notes
-* Teacher attendance tracking
+* Lead and inquiry tracking
 
 ---
 
-### Course Management Module
+### Property Search Module
 
 #### Features
 
-* Create and manage courses
-* Course title and description
-* Course level
-* Duration
-* Price
-* Category
-* Thumbnail image
-* Syllabus
-* Teacher assignment
-* Lesson materials
-* Video lessons
+* Search by keyword
+* Filter by city, type, and status
+* Price range filtering
+* Bedroom and bathroom filters
+* Property size filters
+* Map-based exploration
+* Sort by newest, price, or popularity
+* AI recommendation-ready search logic
 
-#### Example Courses
+#### Example Properties
 
-* Java Beginner
-* English A1
-* IELTS Preparation
-* React Frontend Bootcamp
+* Downtown Luxury Condo
+* Family Villa with Garden
+* Furnished Studio for Rent
+* Office Space in Business Center
 
 ---
 
-### Group / Batch Module
+### Favorites / Saved Searches Module
 
 #### Features
 
-* Group name
-* Course assignment
-* Teacher assignment
-* Student list
-* Start and end dates
-* Maximum capacity
-* Classroom or online link
-* Weekly schedule
-
-#### Example Groups
-
-* Java Beginner — Group A
-* Java Beginner — Group B
-* English A1 — Morning Group
+* Save favorite properties
+* Create saved searches
+* Price alert preferences
+* Availability alerts
+* Compare selected properties
+* Quick access to recently viewed listings
 
 ---
 
-### Schedule Module
+### Viewing / Scheduling Module
 
 #### Features
 
-* Weekly timetable
-* Daily timetable
-* Assign teachers and rooms
-* Online meeting links
+* Request property viewing
+* Calendar-based appointment management
+* Agent confirmation and rescheduling
+* Viewing notes
 * Conflict detection
-* Prevent double-booking of teachers
-* Prevent classroom overlaps
+* Prevent overlapping confirmed viewings
+* Online meeting links for virtual tours
 * Calendar view
 
 ---
 
-### Attendance Module
+### Messaging / Inquiry Module
 
 #### Features
 
-* Mark present / absent / late
-* Attendance history
-* Attendance percentage
-* Date-based filtering
-* Parent notifications for absences
+* Send inquiry about a property
+* Property-based conversations
+* Buyer and renter messaging
+* Agent and owner replies
+* Attachment support
+* Conversation history
+* Lead status tracking
 
 ---
 
-### Payment Module
+### Payment / Monetization Module
 
 #### Features
 
-* Monthly fee tracking
-* Payment records
-* Discounts
-* Remaining debt
+* Paid listing tracking
+* Featured listing purchases
+* Commission records
+* Ad placement billing
 * Invoice generation
 * Payment reminders
 * Payment history
 
 ---
 
-### Homework / Assignment Module
+### Offer / Negotiation Module
 
 #### Features
 
-* Create homework
-* Attach files or links
-* Set deadlines
-* Student submission
-* Teacher review
-* Feedback system
-
----
-
-### Exam / Grade Module
-
-#### Features
-
-* Create exams
-* Enter scores
-* Grade history
-* Pass/fail logic
-* Student performance tracking
-* Downloadable result sheets
-
----
-
-### Lesson Materials Module
-
-#### Features
-
-* Upload PDFs
-* Upload images
-* Upload documents
-* Add external links
-* Embed YouTube videos
-* Organize materials by lesson
+* Create offers
+* Counter-offer support
+* Offer status history
+* Accept or reject offers
+* Buyer offer tracking
+* Negotiation notes
+* Downloadable offer summaries
 
 ---
 
@@ -308,39 +279,40 @@ The academy owner who uses the platform.
 #### Features
 
 * In-app notifications
-* Homework reminders
+* Inquiry reminders
+* Viewing reminders
 * Payment reminders
-* Schedule updates
-* Class cancellation alerts
-* Exam announcements
+* Offer updates
+* Listing status updates
 
 ---
 
 ### Dashboard & Analytics Module
 
-#### Academy Dashboard
+#### Agency Dashboard
 
-* Total students
-* Total teachers
-* Active courses
-* Unpaid students
+* Total listings
+* Total agents
+* Featured listings
 * Monthly revenue
-* Attendance statistics
-* Today's classes
+* Open inquiries
+* Scheduled viewings
+* Active promotions
 
-#### Teacher Dashboard
+#### Agent Dashboard
 
-* Today's schedule
-* Homework reviews
-* Attendance tasks
+* Assigned listings
+* New inquiries
+* Upcoming viewings
+* Open offers
 
-#### Student Dashboard
+#### Buyer / Renter Dashboard
 
-* Enrolled courses
-* Upcoming lessons
-* Assignments due
-* Grades
-* Payment status
+* Favorite properties
+* Saved searches
+* Upcoming viewings
+* Inquiry history
+* Offer status
 
 ---
 
@@ -348,11 +320,11 @@ The academy owner who uses the platform.
 
 #### Features
 
-* Attendance reports
+* Listing performance reports
 * Payment reports
-* Student performance reports
-* Teacher workload reports
-* Course popularity reports
+* Inquiry conversion reports
+* Agent workload reports
+* Property popularity reports
 * Export to PDF
 * Export to Excel
 
@@ -364,9 +336,9 @@ The academy owner who uses the platform.
 
 * Home page
 * About page
-* Courses page
-* Course details page
-* Teachers page
+* Properties page
+* Property details page
+* Agents page
 * Contact page
 * Registration page
 * Login page
@@ -375,27 +347,22 @@ The academy owner who uses the platform.
 
 ### Current Features
 
-* Authentication
-* Role system
-* Student CRUD
-* Teacher CRUD
-* Course CRUD
-* Group CRUD
-* Schedule management
-* Attendance tracking
-* Payment tracking
-* Dashboard statistics
-* File upload for materials
+* React + TypeScript + Vite frontend scaffold
+* Tailwind-ready frontend setup
+* Frontend service, route, hook, context, schema, and type folders
+* Root project documentation for frontend, backend, and API planning
+* Real estate domain documentation for listings, messaging, payments, and dashboards
 
 ### Additional Features (In the future)
 
-* Parent panel
-* Homework submission
-* Exam module
-* Notifications
-* Certificates
-* Subscription plans
-* Video lessons
+* Full Spring Boot backend implementation
+* Property image uploads and gallery management
+* Advanced map integration
+* AI property recommendations
+* Real-time messaging
+* Offer and negotiation workflow
+* Payment gateway integration
+* Featured listings and ad placements
 
 ---
 
@@ -408,10 +375,12 @@ The academy owner who uses the platform.
 * Tailwind CSS
 * React Router
 * Axios
-* React Hook Form
-* Zod
+* React Helmet Async
 * i18n
-* Chart.js or Recharts
+* Recharts
+* React Hook Form (planned)
+* Zod (planned)
+* React Leaflet or Google Maps (planned)
 
 ### Backend
 
@@ -424,6 +393,7 @@ The academy owner who uses the platform.
 * Swagger / OpenAPI
 * Bean Validation
 * File Upload Handling
+* Payment Integration
 
 ### Deployment
 
@@ -431,6 +401,7 @@ The academy owner who uses the platform.
 * Nginx
 * VPS Hosting
 * PostgreSQL Server
+* Cloud Storage or CDN for media later
 
 ---
 
@@ -440,22 +411,22 @@ Main database tables:
 
 * users
 * roles
-* academies
-* branches
-* students
-* parents
-* teachers
-* courses
-* groups
-* enrollments
-* schedules
-* attendance
+* agencies
+* agents
+* property_owners
+* properties
+* property_images
+* property_features
+* favorites
+* saved_searches
+* inquiries
+* conversations
+* messages
+* viewings
+* offers
 * payments
-* assignments
-* submissions
-* exams
-* grades
-* materials
+* promotions
+* ad_placements
 * notifications
 
 ---
@@ -463,20 +434,27 @@ Main database tables:
 ## 📁 Suggested Project Structure
 
 ```bash
+docs/
+├── frontend.md
+├── backend.md
+└── api.md
+
 frontend/
 ├── public/
 ├── src/
 │   ├── assets/
 │   ├── components/
-│   ├── layouts/
+│   ├── constants/
+│   ├── context/
+│   ├── hooks/
+│   ├── i18n/
 │   ├── pages/
 │   ├── routes/
+│   ├── schemas/
 │   ├── services/
-│   ├── hooks/
-│   ├── context/
 │   ├── types/
 │   ├── utils/
-│   └── i18n/
+│   └── App.tsx
 
 backend/
 ├── src/main/java/
@@ -493,19 +471,20 @@ backend/
 
 ---
 
-## 📹 Video Upload Strategy
+## 🖼️ Property Media Strategy
 
 For the graduation version, the easiest approach is:
 
-* Upload PDFs and images directly
-* Store lesson videos as embedded YouTube unlisted links
-* Save the video URL in the database
-* Optionally use free cloud storage like Cloudinary later
+* Upload property images directly
+* Save image URLs in the database
+* Store video walkthroughs as embedded YouTube unlisted links or external URLs
+* Use basic optimization for gallery images
+* Optionally use Cloudinary or S3 later
 
 This avoids:
 
 * Large server storage costs
-* Slow streaming
+* Slow media-heavy pages
 * Complex video processing
 * Expensive hosting
 
@@ -513,21 +492,22 @@ This avoids:
 
 ## 💡 Business Value
 
-EduCore can become a real SaaS platform for:
+Nestora can become a real SaaS platform for:
 
-* Language schools
-* Coding bootcamps
-* Private tutors
-* Music schools
-* Art academies
-* Corporate training centers
+* Real estate agencies
+* Independent brokers
+* Property owners
+* Rental managers
+* Real estate startups
+* Property developers
 
 Potential business model:
 
-* Monthly subscription per academy
-* Free trial plan
-* Premium features for larger academies
-* White-label academy branding
+* Paid property listing submissions
+* Featured listing packages
+* Commission-based revenue
+* Ad placements for agencies or developers
+* Premium subscription plans for agencies
 
 ---
 
@@ -535,19 +515,19 @@ Potential business model:
 
 ### Problem
 
-Many academies still use manual methods to manage students, schedules, attendance, and payments.
+Many real estate businesses still use manual methods to manage listings, leads, appointments, and payments.
 
 ### Solution
 
-EduCore provides a centralized digital platform that simplifies academy management.
+Nestora provides a centralized digital platform that simplifies property listing, search, inquiry, and monetization workflows.
 
 ### Benefits
 
 * Saves time
 * Reduces errors
-* Improves organization
+* Improves listing visibility
 * Makes communication easier
-* Supports academy growth
+* Supports business growth
 * Provides analytics and reports
 
 ---
@@ -557,8 +537,8 @@ EduCore provides a centralized digital platform that simplifies academy manageme
 ### 1. Clone the Repository
 
 ```bash id="b9tdfu"
-git clone https://github.com/your-username/educore.git
-cd educore
+git clone https://github.com/your-username/nestora.git
+cd nestora
 ```
 
 ---
@@ -583,6 +563,7 @@ Create a `.env` file inside the frontend folder:
 
 ```env id="l2o9sd"
 VITE_API_BASE_URL=http://localhost:8080/api
+VITE_MAPS_API_KEY=your_maps_api_key
 ```
 
 ### 5. Run Frontend Development Server
@@ -601,6 +582,8 @@ http://localhost:5173
 
 ## ☕ Backend Setup
 
+The repository currently does not contain the Spring Boot backend folder yet. The steps below describe the planned backend module documented in `docs/backend.md` and `docs/api.md`.
+
 ### 6. Navigate to Backend Folder
 
 ```bash id="r7t2zc"
@@ -612,7 +595,7 @@ cd backend
 Create a PostgreSQL database:
 
 ```sql id="f0p2wr"
-CREATE DATABASE educore_db;
+CREATE DATABASE nestora_real_estate_db;
 ```
 
 ### 8. Configure Application Properties
@@ -626,7 +609,7 @@ src/main/resources/application.properties
 Example configuration:
 
 ```properties id="g3h7as"
-spring.datasource.url=jdbc:postgresql://localhost:5432/educore_db
+spring.datasource.url=jdbc:postgresql://localhost:5432/nestora_real_estate_db
 spring.datasource.username=postgres
 spring.datasource.password=your_password
 
@@ -691,10 +674,10 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: educore_db
+    container_name: nestora_real_estate_db
     restart: always
     environment:
-      POSTGRES_DB: educore_db
+      POSTGRES_DB: nestora_real_estate_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -702,19 +685,19 @@ services:
 
   backend:
     build: ./backend
-    container_name: educore_backend
+    container_name: nestora_backend
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/educore_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nestora_real_estate_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
   frontend:
     build: ./frontend
-    container_name: educore_frontend
+    container_name: nestora_frontend
     ports:
       - "5173:5173"
     depends_on:
@@ -727,20 +710,28 @@ services:
 
 ```txt id="aw50xq"
 Super Admin
-Email: admin@educore.com
+Email: admin@nestora.com
 Password: Admin123!
 
-Academy Manager
-Email: manager@educore.com
-Password: Manager123!
+Agency Admin
+Email: agency@nestora.com
+Password: Agency123!
 
-Teacher
-Email: teacher@educore.com
-Password: Teacher123!
+Agent
+Email: agent@nestora.com
+Password: Agent123!
 
-Student
-Email: student@educore.com
-Password: Student123!
+Property Owner
+Email: owner@nestora.com
+Password: Owner123!
+
+Buyer
+Email: buyer@nestora.com
+Password: Buyer123!
+
+Renter
+Email: renter@nestora.com
+Password: Renter123!
 ```
 
 ---
@@ -771,4 +762,3 @@ mvn test
 ./gradlew build
 ./gradlew test
 ```
-
